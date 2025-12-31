@@ -3,6 +3,7 @@ package services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import entities.Ticket;
 import entities.User;
 import util.UserServiceUtil;
 
@@ -18,7 +19,17 @@ public class UserBookingService {
 
     private ObjectMapper objectMapper=new ObjectMapper();
 
-    private  static  final String USERS_PATH="../localDB/users.json";
+    private  static  final String USERS_PATH="app/src/main/java/localDB";
+
+
+    public UserBookingService()throws Exception{
+        loadAllUsers();
+    }
+
+    public List<User>loadAllUsers()throws Exception{
+        File users=new File(USERS_PATH);
+        return objectMapper.readValue(users, new TypeReference<List<User>>() {});
+    }
 
     public UserBookingService(User user1)throws IOException {
 
@@ -39,6 +50,7 @@ public class UserBookingService {
         return foundUser.isPresent();
     }
 
+
     public Boolean signUp(User user1){
         try {
             userList.add(user1);
@@ -54,5 +66,23 @@ public class UserBookingService {
     {
         File userFile=new File(USERS_PATH);
         objectMapper.writeValue(userFile,userList);
+    }
+
+
+    public void fetchBooking(){
+        user.printTickets();
+    }
+
+
+    public Boolean cancelBooking(String ticketId)throws Exception{
+       List<Ticket>list= user.getTicketBooked();
+       for(Ticket ticketid:list){
+           if (ticketid.getTicketId().equals(ticketId)){
+               list.remove(ticketid);
+               saveUserListToFile();
+               return true;
+           }
+       }
+       return false;
     }
 }
